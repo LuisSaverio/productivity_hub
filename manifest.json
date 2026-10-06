@@ -1,0 +1,24 @@
+{
+  "name": "FocusHub - Study & Productivity",
+  "short_name": "FocusHub",
+  "description": "Minimalist study hub with Pomodoro timer, tasks, flashcards, and ambient sounds",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FAFAFB",
+  "theme_color": "#FFFFFF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
