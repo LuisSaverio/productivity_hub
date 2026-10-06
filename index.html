@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FocusHub • Minimalist Study & Productivity Hub</title>
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #FAFAFB;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F3F4F6;
+      --bg-hover: #E5E7EB;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --text-light: #9CA3AF;
+      --border-subtle: #EBECEF;
+      --border-focus: #111827;
+      --accent: #18181B;
+      --accent-soft: #F4F4F5;
+      --highlight: #0D9488;
+      --danger: #EF4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-pill: 9999px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 8px -2px rgba(0, 0, 0, 0.02);
+      --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.06);
+      --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding-bottom: 96px;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 640px;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      padding: 24px 20px 40px;
+      position: relative;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding: 8px 4px 4px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .greeting-sub {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .greeting-title {
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+    }
+
+    .stats-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface);
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Ambient Audio Pill */
+    .ambient-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .ambient-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ambient-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .sound-btn {
+      background: var(--bg-subtle);
+      border: 1px solid transparent;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .sound-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* Quotes banner */
+    .quote-bar {
+      font-size: 0.84rem;
+      font-style: italic;
+      color: var(--text-muted);
+      border-left: 2.5px solid var(--accent);
+      padding-left: 12px;
+      margin-bottom: 22px;
+      line-height: 1.45;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .quote-bar.quote-fade {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    /* Tab Content Views */
+    .tab-view {
+      display: none;
+      animation: slideUpFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: -0.01em;
+    }
+
+    .card-title .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+    }
+
+    /* Pomodoro Timer Component */
+    .pomodoro-container {
+      text-align: center;
+      padding: 28px 16px;
+      position: relative;
+    }
+
+    .timer-modes {
+      display: inline-flex;
+      background: var(--bg-subtle);
+      padding: 4px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 28px;
+    }
+
+    .timer-mode-btn {
+      background: transparent;
+      border: none;
+      padding: 7px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .timer-mode-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .timer-circle-wrapper {
+      position: relative;
+      width: 230px;
+      height: 230px;
+      margin: 0 auto 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .timer-circle-bg {
+      stroke: var(--bg-subtle);
+      stroke-width: 6;
+      fill: none;
+    }
+
+    .timer-circle-progress {
+      stroke: var(--accent);
+      stroke-width: 6;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke-dashoffset 0.8s ease;
+    }
+
+    .timer-display-inner {
+      text-align: center;
+      z-index: 2;
+    }
+
+    .timer-digits {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3rem;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      color: var(--text-main);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .timer-status-text {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .btn-main-ctrl {
+      background: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      padding: 14px 34px;
+      border-radius: var(--radius-pill);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-main-ctrl:active {
+      transform: scale(0.96);
+    }
+
+    .btn-icon-ctrl {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-icon-ctrl:hover {
+      color: var(--text-main);
+      background: var(--bg-hover);
+    }
+
+    .btn-icon-ctrl:active {
+      transform: scale(0.92);
+    }
+
+    /* Form and Inputs */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .clean-input {
+      width: 100%;
+      background: var(--bg-subtle);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+
+    .clean-input:focus {
+      background: var(--bg-surface);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .clean-input::placeholder {
+      color: var(--text-light);
+    }
+
+    .clean-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+    }
+
+    .clean-btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-subtle);
+      border-color: #D1D5DB;
+    }
+
+    /* Lists */
+    .todo-list,
+    .checklist-items,
+    .brain-dump-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .todo-item {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      animation: fadeIn 0.25s ease;
+      gap: 6px;
+    }
+
+    .todo-item:hover {
+      border-color: #D1D5DB;
+    }
+
+    .todo-item.completed {
+      background: var(--bg-subtle);
+      opacity: 0.65;
+    }
+
+    .todo-item.completed .todo-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .todo-item.completed .todo-desc-text {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    .todo-main-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .todo-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 1.5px solid var(--text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: all var(--transition-fast);
+      background: transparent;
+    }
+
+    .custom-checkbox.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .todo-title {
+      font-size: 0.94rem;
+      color: var(--text-main);
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .todo-desc-text {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-left: 32px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-fast);
+    }
+
+    .delete-btn:hover {
+      color: var(--danger);
+    }
+
+    /* Expandable Form Box */
+    .task-create-box {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Daily Goal Checklist with Progress Bar */
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-pill);
+      margin: 12px 0 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: var(--radius-pill);
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Idea Dump / Notes */
+    .note-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .note-card {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      position: relative;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .note-content {
+      font-size: 0.88rem;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+
+    .note-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .note-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ================= FLASHCARD FOLDERS & MANAGER ================= */
+    .folder-scroll-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: 16px;
+      padding-bottom: 4px;
+    }
+
+    .folder-scroll-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .folder-chip {
+      background: var(--bg-subtle);
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .folder-chip.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .flashcard-box {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 22px;
+      text-align: center;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--transition-fast);
+      margin-bottom: 16px;
+      border: 1px solid transparent;
+    }
+
+    .flashcard-box:active {
+      transform: scale(0.985);
+    }
+
+    .fc-prompt {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .fc-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .fc-manage-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 14px;
+    }
+
+    .fc-manage-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-subtle);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      gap: 8px;
+    }
+
+    /* Quick Study Miscs */
+    .misc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .misc-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .misc-tile:hover {
+      border-color: #D1D5DB;
+      transform: translateY(-1px);
+    }
+
+    .misc-tile-icon {
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .misc-tile-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .misc-tile-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Floating / Bottom Mobile Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 440px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(235, 236, 239, 0.95);
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 7px 10px;
+      z-index: 999;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      font-weight: 600;
+      transition: all var(--transition-fast);
+    }
+
+    .nav-btn.active {
+      color: var(--text-main);
+      background: var(--accent-soft);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Modal Sheet */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      width: 100%;
+      max-width: 600px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border-subtle);
+      border-radius: 2px;
+      margin: 0 auto 18px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--text-light);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <div>
+        <div class="greeting-sub" id="currentDate">TODAY</div>
+        <h1 class="greeting-title" id="greetingText">Focus Space</h1>
+      </div>
+      <div class="stats-badge" title="Completed Pomodoro Sessions">
+        <i data-lucide="flame" style="width:16px;height:16px;color:#EA580C;"></i>
+        <span id="streakCount">0 sessions</span>
+      </div>
+    </header>
+
+    <!-- Ambient Audio Pill -->
+    <div class="ambient-bar">
+      <span class="ambient-label"><i data-lucide="headphones" style="width:14px;height:14px;"></i> Ambient:</span>
+      <button class="sound-btn" onclick="toggleSound('rain', this)"><i data-lucide="cloud-rain"
+          style="width:12px;height:12px;"></i> Rain</button>
+      <button class="sound-btn" onclick="toggleSound('whitenoise', this)"><i data-lucide="wind"
+          style="width:12px;height:12px;"></i> White Noise</button>
+      <button class="sound-btn" onclick="toggleSound('waves', this)"><i data-lucide="waves"
+          style="width:12px;height:12px;"></i> Waves</button>
+    </div>
+
+    <!-- Motivational Quote -->
+    <div class="quote-bar" id="dailyQuote">
+      "Small daily improvements over time lead to stunning results."
+    </div>
+
+    <!-- ================= TAB 1: FOCUS / POMODORO ================= -->
+    <main id="tab-timer" class="tab-view active">
+      <div class="card pomodoro-container">
+        <div class="timer-modes">
+          <button class="timer-mode-btn active" onclick="setTimerMode('focus', 25, this)">Focus (25m)</button>
+          <button class="timer-mode-btn" onclick="setTimerMode('short', 5, this)">Short Break (5m)</button>
+          <button class="timer-mode-btn" onclick="setTimerMode('long', 15, this)">Long Break (15m)</button>
+        </div>
+
+        <div class="timer-circle-wrapper">
+          <svg class="timer-svg" viewBox="0 0 220 220">
+            <circle class="timer-circle-bg" cx="110" cy="110" r="95"></circle>
+            <circle id="timerProgress" class="timer-circle-progress" cx="110" cy="110" r="95" stroke-dasharray="596.9"
+              stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="timer-display-inner">
+            <div class="timer-digits" id="timeDisplay">25:00</div>
+            <div class="timer-status-text" id="timerModeLabel">Focus Mode</div>
+          </div>
+        </div>
+
+        <div class="timer-controls">
+          <button class="btn-icon-ctrl" onclick="resetTimer()" title="Reset Timer">
+            <i data-lucide="rotate-ccw" style="width:18px;height:18px;"></i>
+          </button>
+          <button class="btn-main-ctrl" id="startBtn" onclick="toggleTimer()">
+            <i data-lucide="play" id="playIcon" style="width:18px;height:18px;"></i>
+            <span id="startBtnText">Start Focus</span>
+          </button>
+          <button class="btn-icon-ctrl" onclick="openTimerSettings()" title="Custom Timer Settings">
+            <i data-lucide="sliders-horizontal" style="width:18px;height:18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Session Goal -->
+      <div class="card">
+        <div class="card-title">
+          <span>Current Session Focus</span>
+          <span class="badge">Single Task</span>
+        </div>
+        <div class="input-row" style="margin-bottom:0;">
+          <input type="text" id="sessionFocusInput" class="clean-input"
+            placeholder="What is the one thing you are studying now?..." />
+        </div>
+      </div>
+    </main>
+
+    <!-- ================= TAB 2: TASKS & TO-DO ================= -->
+    <main id="tab-tasks" class="tab-view">
+      <!-- Daily Checkpoints / Habit Goals -->
+      <div class="card">
+        <div class="card-title">
+          <span>Daily Goals & Checkpoints</span>
+          <span class="badge" id="dailyGoalCount">0/0</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="goalProgressFill"></div>
+        </div>
+        <div class="input-row">
+          <input type="text" id="goalInput" class="clean-input"
+            placeholder="Add a daily goal (e.g. Solve 5 problems)..." onkeypress="handleGoalKeyPress(event)" />
+          <button class="clean-btn" onclick="addGoal()">
+            <i data-lucide="plus" style="width:18px;height:18px;"></i>
+          </button>
+        </div>
+        <ul class="checklist-items" id="dailyGoalList"></ul>
+      </div>
+
+      <!-- General Study To-Do List with Descriptions -->
+      <div class="card">
+        <div class="card-title">
+          <span>To-Do List</span>
+          <span class="badge" id="todoCount">0 tasks</span>
+        </div>
+
+        <!-- Task Creator with optional description -->
+        <div class="task-create-box">
+          <input type="text" id="todoTitleInput" class="clean-input"
+            placeholder="Task title (e.g. Read Physics Chapter 4)..." onkeypress="handleTodoKeyPress(event)" />
+          <textarea id="todoDescInput" class="clean-input" style="height:56px; resize:none;"
+            placeholder="Add details/description (optional)..."></textarea>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="clean-btn" onclick="addTodo()" style="padding: 9px 18px;">
+              <i data-lucide="plus" style="width:16px;height:16px;"></i> Add Task
+            </button>
+          </div>
+        </div>
+
+        <ul class="todo-list" id="todoList"></ul>
+      </div>
+    </main>
+
+    <!-- ================= TAB 3: IDEA & BRAIN DUMP ================= -->
+    <main id="tab-notes" class="tab-view">
+      <div class="card">
+        <div class="card-title">
+          <span>Quick Brain & Idea Dump</span>
+          <span class="badge">Capture Thoughts</span>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">
+          Unload thoughts, random exam questions, or formulas quickly so they don't distract your study flow.
+        </p>
+        <div class="input-row" style="flex-direction:column;">
+          <textarea id="noteInput" class="clean-input" style="resize:none; height:74px;"
+            placeholder="Jot down a quick thought, study concept, or link..."></textarea>
+          <button class="clean-btn" onclick="addNote()" style="align-self:flex-end; padding: 10px 20px;">
+            <i data-lucide="send" style="width:16px;height:16px;"></i> Dump Idea
+          </button>
+        </div>
+        <div class="note-grid" id="notesList"></div>
+      </div>
+    </main>
+
+    <!-- ================= TAB 4: FLASHCARDS & MISC ================= -->
+    <main id="tab-misc" class="tab-view">
+      <!-- Flashcard Deck System with Folders -->
+      <div class="card">
+        <div class="card-title">
+          <span>Active Recall Decks</span>
+          <button class="btn-outline" onclick="openFolderManager()">
+            <i data-lucide="folder-plus" style="width:14px;height:14px;"></i> Manage Folders
+          </button>
+        </div>
+
+        <!-- Folder Horizontal Selector -->
+        <div class="folder-scroll-row" id="folderChipsRow"></div>
+
+        <!-- Flashcard View -->
+        <div class="flashcard-box" id="flashcardBox" onclick="flipFlashcard()">
+          <div class="fc-prompt" id="fcSide">QUESTION</div>
+          <div class="fc-text" id="fcContent">Select a folder or add cards...</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+          <button class="sound-btn" onclick="prevFlashcard()"><i data-lucide="chevron-left"
+              style="width:14px;height:14px;"></i> Prev</button>
+          <span style="font-size:0.78rem; font-weight:600; color:var(--text-muted);" id="fcCounter">0/0</span>
+          <button class="sound-btn" onclick="nextFlashcard()">Next <i data-lucide="chevron-right"
+              style="width:14px;height:14px;"></i></button>
+        </div>
+
+        <!-- Card Editor/Add buttons -->
+        <div style="display:flex; gap:8px;">
+          <button class="clean-btn" style="flex:1; padding:9px;" onclick="openCardEditorModal(null)">
+            <i data-lucide="plus" style="width:15px;height:15px;"></i> Add Card
+          </button>
+          <button class="btn-outline" onclick="openManageDeckModal()">
+            <i data-lucide="list" style="width:15px;height:15px;"></i> Edit Deck
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Productivity Utilities Grid -->
+      <div class="card-title" style="margin-top:10px; margin-bottom:10px;">Study Tool Protocols</div>
+      <div class="misc-grid">
+        <div class="misc-tile" onclick="openStudyMethod('pomodoro')">
+          <i data-lucide="clock" class="misc-tile-icon" style="width:20px;height:20px;"></i>
+          <span class="misc-tile-title">50/10 Rule</span>
+          <span class="misc-tile-desc">High focus protocol</span>
+        </div>
+        <div class="misc-tile" onclick="openStudyMethod('blurting')">
+          <i data-lucide="file-text" class="misc-tile-icon" style="width:20px;height:20px;"></i>
+          <span class="misc-tile-title">Blurting Method</span>
+          <span class="misc-tile-desc">Memory retrieval system</span>
+        </div>
+        <div class="misc-tile" onclick="openStudyMethod('interleaving')">
+          <i data-lucide="shuffle" class="misc-tile-icon" style="width:20px;height:20px;"></i>
+          <span class="misc-tile-title">Interleaving</span>
+          <span class="misc-tile-desc">Switch topics strategically</span>
+        </div>
+        <div class="misc-tile" onclick="triggerCleanData()">
+          <i data-lucide="trash-2" class="misc-tile-icon" style="width:20px;height:20px;color:var(--danger)"></i>
+          <span class="misc-tile-title">Clear Storage</span>
+          <span class="misc-tile-desc">Reset local app data</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation Bar for Mobile -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="switchTab('tab-timer', this)">
+        <i data-lucide="timer" style="width:19px;height:19px;"></i>
+        <span>Focus</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('tab-tasks', this)">
+        <i data-lucide="check-square" style="width:19px;height:19px;"></i>
+        <span>Tasks</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('tab-notes', this)">
+        <i data-lucide="lightbulb" style="width:19px;height:19px;"></i>
+        <span>Dumps</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('tab-misc', this)">
+        <i data-lucide="layout-grid" style="width:19px;height:19px;"></i>
+        <span>Cards & Misc</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Universal Modal Sheet -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <h3 id="modalTitle" style="font-size:1.1rem; font-weight:700; margin-bottom:14px;">Modal</h3>
+      <div id="modalBody" style="font-size:0.9rem; color:var(--text-main); line-height:1.6;"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       STATE & INITIALIZATION
+       ========================================================================== */
+    const STORAGE_PREFIX = 'focusHub_';
+    const quotes = [
+      "Focus is a muscle. The more you practice, the easier it becomes.",
+      "Do the hard task first. Your future self will thank you.",
+      "I didn't wake up to be average.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Stick to the plan, not your mood.",
+      "Without discipline, goals are only wishes.",
+      "Remember why you started.",
+      "Every excuse today is a debt you'll pay tomorrow.",
+      "It's you vs you.",
+      "If you want to change your life, change your routine.",
+      "The pain of discipline is nothing like the pain of regret.",
+      "Try again.",
+      "Your goals don't care about your feelings.",
+      "The only way to do great work is to love what you do.",
+      "Wake up with a purpose.",
+      "Stop thinking about it, do it.",
+      "If I play, I play to win.",
+      "It's not hard, it's just new.",
+      "Big dreams require big sacrifices.",
+      "Until it's done, tell none.",
+      "Stop being scared of being disliked by losers.",
+      "Step out of your comfort zone.",
+      "Discipline is the highest form of self-love.",
+      "Comfort kills potential.",
+      "Sometimes you win, sometimes you learn.",
+      "Don't stop when you're tired, stop when you're done.",
+      "Quit here or get better?",
+      "Born to win.",
+      "Discipline isn't optional, it's survival.",
+      "Sweat now, shine later",
+      "Hard now, easy later.",
+      "Every step is progress.",
+      "Nobody is coming to push you, do it yourself.",
+      "It's going to happen.",
+      "The price of progress is pain.",
+      "Be like her.",
+      "If you want to be great, you have to be willing to suffer.",
+      "Destroy yourself to build yourself.",
+      "Bad days build better days.",
+      "You'll never feel ready, do it anyway.",
+      "Fear is temporary, regret is permanent.",
+      "It won't happen overnight, but if you quit, it won't happen at all.",
+      "We are who we choose to be.",
+      "If you can control your mind, you can change your life.",
+      "The pain of discipline is nothing like the pain of regret."
+    ];
+
+    let timerInterval = null;
+    let timerState = {
+      mode: 'focus',
+      durationMinutes: 25,
+      secondsLeft: 25 * 60,
+      isRunning: false,
+      completedSessions: parseInt(localStorage.getItem(STORAGE_PREFIX + 'sessions') || '0')
+    };
+
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'tasks') || '[]');
+    let goals = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'goals') || '[]');
+    let notes = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'notes') || '[]');
+
+    // Flashcard Folder-based Decks
+    let flashcardFolders = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'fc_folders') || 'null');
+    if (!flashcardFolders || flashcardFolders.length === 0) {
+      flashcardFolders = [
+        {
+          id: 'f_study_methods',
+          name: '🧠 Study Protocols',
+          cards: [
+            { id: 1, q: "What is the Feynman Technique?", a: "Explaining a concept in simple, layman terms to spot and address knowledge gaps." },
+            { id: 2, q: "What is Active Recall?", a: "Testing yourself to retrieve information from memory rather than passively re-reading." },
+            { id: 3, q: "What is Spaced Repetition?", a: "Reviewing material at systematically increasing intervals to defeat the forgetting curve." }
+          ]
+        },
+        {
+          id: 'f_general',
+          name: '📚 Quick Formulas',
+          cards: [
+            { id: 4, q: "Euler's Formula in Complex Analysis?", a: "e^(ix) = cos(x) + i*sin(x)" },
+            { id: 5, q: "Pareto Principle (80/20 Rule)?", a: "80% of consequences/results come from 20% of causes/efforts." }
+          ]
+        }
+      ];
+    }
+    let currentFolderId = flashcardFolders[0] ? flashcardFolders[0].id : null;
+    let currentFcIndex = 0;
+    let fcFlipped = false;
+
+    // Default Seed Data for Tasks & Goals
+    if (goals.length === 0) {
+      goals = [
+        { id: 1, text: "Complete 2 deep focus pomodoro blocks", completed: false },
+        { id: 2, text: "Review active recall flashcards", completed: false },
+        { id: 3, text: "Drink 1.5L of water while studying", completed: false }
+      ];
+    }
+
+    if (tasks.length === 0) {
+      tasks = [
+        { id: 101, title: "Summarize Chapter 4 - Thermodynamics", desc: "Focus specifically on entropy equations and Carnot cycles.", completed: false },
+        { id: 102, title: "Draft problem set solution #3", desc: "", completed: true }
+      ];
+    }
+
+    if (notes.length === 0) {
+      notes = [
+        { id: 201, text: "Look into Spaced Repetition algorithms (SM-2) for flashcards", date: "Just now" }
+      ];
+    }
+
+    // Web Audio Synthesizer for Ambient Sound
+    let audioCtx = null;
+    let activeNoiseNode = null;
+    let activeSoundType = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initDateGreeting();
+      renderAll();
+      setupTimerCircle();
+
+      // Session Focus Input
+      const savedFocus = localStorage.getItem(STORAGE_PREFIX + 'sessionFocus');
+      if (savedFocus) {
+        document.getElementById('sessionFocusInput').value = savedFocus;
+      }
+      document.getElementById('sessionFocusInput').addEventListener('input', (e) => {
+        localStorage.setItem(STORAGE_PREFIX + 'sessionFocus', e.target.value);
+      });
+      initQuoteRotation();
+    });
+
+    /* ==========================================================================
+       DATE, GREETING & QUOTE ROTATION
+       ========================================================================== */
+    let currentQuoteIndex = Math.floor(Math.random() * quotes.length);
+    let quoteCycleInterval = null;
+
+    function initDateGreeting() {
+      const options = { weekday: 'long', month: 'short', day: 'numeric' };
+      const now = new Date();
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options).toUpperCase();
+
+      const hour = now.getHours();
+      let greeting = "Focus Space";
+      if (hour < 12) greeting = "Good morning";
+      else if (hour < 18) greeting = "Good afternoon";
+      else greeting = "Good evening";
+      document.getElementById('greetingText').textContent = greeting;
+
+      displayQuote(currentQuoteIndex);
+    }
+
+    function displayQuote(index) {
+      const quoteEl = document.getElementById('dailyQuote');
+      if (!quoteEl || quotes.length === 0) return;
+      
+      quoteEl.classList.add('quote-fade');
+      setTimeout(() => {
+        quoteEl.textContent = `"${quotes[index % quotes.length]}"`;
+        quoteEl.classList.remove('quote-fade');
+      }, 400);
+    }
+
+    function nextQuote() {
+      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+      displayQuote(currentQuoteIndex);
+    }
+
+    function initQuoteRotation() {
+      // Rotate quote every 1.5 minutes (90,000 ms)
+      if (quoteCycleInterval) clearInterval(quoteCycleInterval);
+      quoteCycleInterval = setInterval(nextQuote, 90 * 1000);
+
+      // Also allow clicking on the quote banner to cycle immediately
+      const quoteEl = document.getElementById('dailyQuote');
+      if (quoteEl) {
+        quoteEl.style.cursor = 'pointer';
+        quoteEl.title = 'Click to cycle quote';
+        quoteEl.addEventListener('click', () => {
+          nextQuote();
+          // Reset interval timer on manual tap
+          clearInterval(quoteCycleInterval);
+          quoteCycleInterval = setInterval(nextQuote, 90 * 1000);
+        });
+      }
+    }
+
+    function updateStreakDisplay() {
+      document.getElementById('streakCount').textContent = `${timerState.completedSessions} sessions`;
+    }
+
+    /* ==========================================================================
+       TAB NAVIGATION
+       ========================================================================== */
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      if (btn) btn.classList.add('active');
+      lucide.createIcons();
+    }
+
+    /* ==========================================================================
+       POMODORO TIMER LOGIC
+       ========================================================================== */
+    const CIRCLE_RADIUS = 95;
+    const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+
+    function setupTimerCircle() {
+      const progress = document.getElementById('timerProgress');
+      progress.style.strokeDasharray = `${CIRCLE_CIRCUMFERENCE} ${CIRCLE_CIRCUMFERENCE}`;
+      updateTimerDisplay();
+    }
+
+    function setTimerMode(mode, minutes, btn) {
+      if (timerState.isRunning) {
+        clearInterval(timerInterval);
+        timerState.isRunning = false;
+      }
+      timerState.mode = mode;
+      timerState.durationMinutes = minutes;
+      timerState.secondsLeft = minutes * 60;
+
+      document.querySelectorAll('.timer-mode-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const modeLabels = {
+        focus: 'Focus Mode',
+        short: 'Short Break',
+        long: 'Long Break'
+      };
+      document.getElementById('timerModeLabel').textContent = modeLabels[mode] || 'Custom Timer';
+      document.getElementById('startBtnText').textContent = 'Start Focus';
+      document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+
+      updateTimerDisplay();
+      lucide.createIcons();
+    }
+
+    function toggleTimer() {
+      if (timerState.isRunning) {
+        clearInterval(timerInterval);
+        timerState.isRunning = false;
+        document.getElementById('startBtnText').textContent = 'Resume';
+        document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+      } else {
+        timerState.isRunning = true;
+        document.getElementById('startBtnText').textContent = 'Pause';
+        document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
+
+        timerInterval = setInterval(() => {
+          if (timerState.secondsLeft > 0) {
+            timerState.secondsLeft--;
+            updateTimerDisplay();
+          } else {
+            handleTimerComplete();
+          }
+        }, 1000);
+      }
+      lucide.createIcons();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerState.isRunning = false;
+      timerState.secondsLeft = timerState.durationMinutes * 60;
+      document.getElementById('startBtnText').textContent = 'Start Focus';
+      document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+      updateTimerDisplay();
+      lucide.createIcons();
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerState.secondsLeft / 60);
+      const secs = timerState.secondsLeft % 60;
+      document.getElementById('timeDisplay').textContent =
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      const totalSeconds = timerState.durationMinutes * 60;
+      const fraction = timerState.secondsLeft / totalSeconds;
+      const offset = CIRCLE_CIRCUMFERENCE * (1 - fraction);
+      document.getElementById('timerProgress').style.strokeDashoffset = offset;
+    }
+
+    function handleTimerComplete() {
+      clearInterval(timerInterval);
+      timerState.isRunning = false;
+      playBeep();
+
+      if (timerState.mode === 'focus') {
+        timerState.completedSessions++;
+        localStorage.setItem(STORAGE_PREFIX + 'sessions', timerState.completedSessions);
+        updateStreakDisplay();
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+      }
+
+      document.getElementById('startBtnText').textContent = 'Completed!';
+      document.getElementById('playIcon').setAttribute('data-lucide', 'check');
+      lucide.createIcons();
+    }
+
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+      } catch (e) {
+        console.log("Audio not supported or permitted");
+      }
+    }
+
+    function openTimerSettings() {
+      const modal = document.getElementById('modalOverlay');
+      document.getElementById('modalTitle').textContent = 'Custom Timer Duration';
+      document.getElementById('modalBody').innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <label style="font-size:0.85rem; font-weight:600; color:var(--text-main);">Custom Duration (minutes):</label>
+          <input type="number" id="customMinutesInput" class="clean-input" value="${timerState.durationMinutes}" min="1" max="180" />
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <button class="btn-outline" style="flex:1; justify-content:center;" onclick="closeModal()">Cancel</button>
+            <button class="clean-btn" style="flex:1; padding:12px;" onclick="applyCustomDuration()">Apply</button>
+          </div>
+        </div>
+      `;
+      modal.classList.add('open');
+      lucide.createIcons();
+    }
+
+    function applyCustomDuration() {
+      const val = parseInt(document.getElementById('customMinutesInput').value);
+      if (val && val > 0 && val <= 180) {
+        setTimerMode('custom', val, null);
+        document.getElementById('timerModeLabel').textContent = `Custom (${val}m)`;
+        closeModal();
+      }
+    }
+
+    /* ==========================================================================
+       AMBIENT SOUND SYNTHESIZER
+       ========================================================================== */
+    function toggleSound(type, btn) {
+      if (activeSoundType === type) {
+        stopSound();
+        btn.classList.remove('active');
+        return;
+      }
+
+      document.querySelectorAll('.sound-btn').forEach(b => {
+        if (b.innerText.toLowerCase().includes('rain') || b.innerText.toLowerCase().includes('noise') || b.innerText.toLowerCase().includes('waves')) {
+          b.classList.remove('active');
+        }
+      });
+      stopSound();
+
+      startSynthesizedNoise(type);
+      activeSoundType = type;
+      btn.classList.add('active');
+    }
+
+    function startSynthesizedNoise(type) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          if (type === 'rain' || type === 'whitenoise') {
+            const white = Math.random() * 2 - 1;
+            output[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = output[i];
+            output[i] *= 3.5;
+          } else {
+            const white = Math.random() * 2 - 1;
+            output[i] = white * 0.15;
+          }
+        }
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        if (type === 'rain') {
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+        } else if (type === 'whitenoise') {
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1400, audioCtx.currentTime);
+        } else {
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(450, audioCtx.currentTime);
+        }
+
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
+        whiteNoise.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        whiteNoise.start();
+        activeNoiseNode = { source: whiteNoise, gain: gainNode };
+      } catch (err) {
+        console.log("Audio synthesis error:", err);
+      }
+    }
+
+    function stopSound() {
+      if (activeNoiseNode) {
+        try {
+          activeNoiseNode.source.stop();
+          activeNoiseNode.source.disconnect();
+        } catch (e) { }
+        activeNoiseNode = null;
+      }
+      activeSoundType = null;
+    }
+
+    /* ==========================================================================
+       DAILY CHECKPOINTS / HABIT GOALS
+       ========================================================================== */
+    function renderGoals() {
+      const list = document.getElementById('dailyGoalList');
+      list.innerHTML = '';
+
+      const total = goals.length;
+      const completed = goals.filter(g => g.completed).length;
+
+      document.getElementById('dailyGoalCount').textContent = `${completed}/${total}`;
+      const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+      document.getElementById('goalProgressFill').style.width = `${percentage}%`;
+
+      if (goals.length === 0) {
+        list.innerHTML = '<div class="empty-state">No daily goals yet. Add one above!</div>';
+        return;
+      }
+
+      goals.forEach(goal => {
+        const li = document.createElement('li');
+        li.className = `todo-item ${goal.completed ? 'completed' : ''}`;
+        li.innerHTML = `
+          <div class="todo-main-row">
+            <div class="todo-left">
+              <div class="custom-checkbox ${goal.completed ? 'checked' : ''}" onclick="toggleGoal(${goal.id})">
+                ${goal.completed ? '<i data-lucide="check" style="width:14px;height:14px;"></i>' : ''}
+              </div>
+              <span class="todo-title">${escapeHtml(goal.text)}</span>
+            </div>
+            <button class="delete-btn" onclick="deleteGoal(${goal.id})" title="Delete Goal">
+              <i data-lucide="x" style="width:16px;height:16px;"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+      lucide.createIcons();
+    }
+
+    function addGoal() {
+      const input = document.getElementById('goalInput');
+      const val = input.value.trim();
+      if (!val) return;
+      goals.push({ id: Date.now(), text: val, completed: false });
+      input.value = '';
+      saveGoals();
+      renderGoals();
+    }
+
+    function handleGoalKeyPress(e) {
+      if (e.key === 'Enter') addGoal();
+    }
+
+    function toggleGoal(id) {
+      goals = goals.map(g => {
+        if (g.id === id) {
+          const updated = !g.completed;
+          if (updated) {
+            confetti({ particleCount: 20, spread: 45, origin: { y: 0.7 } });
+          }
+          return { ...g, completed: updated };
+        }
+        return g;
+      });
+      saveGoals();
+      renderGoals();
+    }
+
+    function deleteGoal(id) {
+      goals = goals.filter(g => g.id !== id);
+      saveGoals();
+      renderGoals();
+    }
+
+    function saveGoals() {
+      localStorage.setItem(STORAGE_PREFIX + 'goals', JSON.stringify(goals));
+    }
+
+    /* ==========================================================================
+       TO-DO LIST (WITH OPTIONAL DESCRIPTIONS & INLINE EDITING)
+       ========================================================================== */
+    function renderTodos() {
+      const list = document.getElementById('todoList');
+      list.innerHTML = '';
+      const total = tasks.length;
+      document.getElementById('todoCount').textContent = `${total} tasks`;
+
+      if (tasks.length === 0) {
+        list.innerHTML = '<div class="empty-state">All caught up! No tasks pending.</div>';
+        return;
+      }
+
+      tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.className = `todo-item ${task.completed ? 'completed' : ''}`;
+
+        // Handle migration if task was formatted with .text instead of .title
+        const taskTitle = task.title || task.text || '';
+        const taskDesc = task.desc || '';
+
+        li.innerHTML = `
+          <div class="todo-main-row">
+            <div class="todo-left">
+              <div class="custom-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTodo(${task.id})">
+                ${task.completed ? '<i data-lucide="check" style="width:14px;height:14px;"></i>' : ''}
+              </div>
+              <span class="todo-title">${escapeHtml(taskTitle)}</span>
+            </div>
+            <div class="item-actions">
+              <button class="delete-btn" onclick="openEditTaskModal(${task.id})" title="Edit Task">
+                <i data-lucide="edit-3" style="width:15px;height:15px;"></i>
+              </button>
+              <button class="delete-btn" onclick="deleteTodo(${task.id})" title="Delete Task">
+                <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+              </button>
+            </div>
+          </div>
+          ${taskDesc ? `<div class="todo-desc-text">${escapeHtml(taskDesc)}</div>` : ''}
+        `;
+        list.appendChild(li);
+      });
+      lucide.createIcons();
+    }
+
+    function addTodo() {
+      const titleInput = document.getElementById('todoTitleInput');
+      const descInput = document.getElementById('todoDescInput');
+      const title = titleInput.value.trim();
+      const desc = descInput.value.trim();
+
+      if (!title) return;
+      tasks.push({ id: Date.now(), title: title, desc: desc, completed: false });
+      titleInput.value = '';
+      descInput.value = '';
+      saveTodos();
+      renderTodos();
+    }
+
+    function handleTodoKeyPress(e) {
+      if (e.key === 'Enter') addTodo();
+    }
+
+    function toggleTodo(id) {
+      tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+      saveTodos();
+      renderTodos();
+    }
+
+    function deleteTodo(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      saveTodos();
+      renderTodos();
+    }
+
+    function openEditTaskModal(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      const title = task.title || task.text || '';
+      const desc = task.desc || '';
+
+      const modal = document.getElementById('modalOverlay');
+      document.getElementById('modalTitle').textContent = 'Edit Task';
+      document.getElementById('modalBody').innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Task Title</label>
+            <input type="text" id="editTaskTitle" class="clean-input" value="${escapeHtml(title)}" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Description (Optional)</label>
+            <textarea id="editTaskDesc" class="clean-input" style="height:80px; resize:none;">${escapeHtml(desc)}</textarea>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <button class="btn-outline" style="flex:1; justify-content:center;" onclick="closeModal()">Cancel</button>
+            <button class="clean-btn" style="flex:1; padding:12px;" onclick="saveEditedTask(${id})">Save Changes</button>
+          </div>
+        </div>
+      `;
+      modal.classList.add('open');
+      lucide.createIcons();
+    }
+
+    function saveEditedTask(id) {
+      const title = document.getElementById('editTaskTitle').value.trim();
+      const desc = document.getElementById('editTaskDesc').value.trim();
+      if (!title) return;
+
+      tasks = tasks.map(t => {
+        if (t.id === id) {
+          return { ...t, title, desc };
+        }
+        return t;
+      });
+      saveTodos();
+      renderTodos();
+      closeModal();
+    }
+
+    function saveTodos() {
+      localStorage.setItem(STORAGE_PREFIX + 'tasks', JSON.stringify(tasks));
+    }
+
+    /* ==========================================================================
+       IDEA & BRAIN DUMP
+       ========================================================================== */
+    function renderNotes() {
+      const list = document.getElementById('notesList');
+      list.innerHTML = '';
+
+      if (notes.length === 0) {
+        list.innerHTML = '<div class="empty-state">No dumped ideas or notes yet.</div>';
+        return;
+      }
+
+      notes.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'note-card';
+        div.innerHTML = `
+          <div class="note-content">${escapeHtml(n.text)}</div>
+          <div class="note-footer">
+            <span class="note-date">${n.date}</span>
+            <button class="delete-btn" onclick="deleteNote(${n.id})" title="Delete Note">
+              <i data-lucide="x" style="width:14px;height:14px;"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      lucide.createIcons();
+    }
+
+    function addNote() {
+      const input = document.getElementById('noteInput');
+      const val = input.value.trim();
+      if (!val) return;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      notes.unshift({ id: Date.now(), text: val, date: timeStr });
+      input.value = '';
+      saveNotes();
+      renderNotes();
+    }
+
+    function deleteNote(id) {
+      notes = notes.filter(n => n.id !== id);
+      saveNotes();
+      renderNotes();
+    }
+
+    function saveNotes() {
+      localStorage.setItem(STORAGE_PREFIX + 'notes', JSON.stringify(notes));
+    }
+
+    /* ==========================================================================
+       FLASHCARDS & FOLDER MANAGEMENT
+       ========================================================================== */
+    function getCurrentFolder() {
+      if (!flashcardFolders || flashcardFolders.length === 0) return null;
+      let folder = flashcardFolders.find(f => f.id === currentFolderId);
+      if (!folder) {
+        folder = flashcardFolders[0];
+        currentFolderId = folder.id;
+      }
+      return folder;
+    }
+
+    function renderFlashcards() {
+      renderFolderChips();
+      updateFlashcardUI();
+    }
+
+    function renderFolderChips() {
+      const container = document.getElementById('folderChipsRow');
+      container.innerHTML = '';
+
+      if (flashcardFolders.length === 0) {
+        container.innerHTML = '<span style="font-size:0.8rem; color:var(--text-light);">No folders created</span>';
+        return;
+      }
+
+      flashcardFolders.forEach(folder => {
+        const chip = document.createElement('button');
+        chip.className = `folder-chip ${folder.id === currentFolderId ? 'active' : ''}`;
+        chip.innerHTML = `<span>${escapeHtml(folder.name)}</span> <span style="font-size:0.72rem; opacity:0.8;">(${folder.cards.length})</span>`;
+        chip.onclick = () => selectFolder(folder.id);
+        container.appendChild(chip);
+      });
+    }
+
+    function selectFolder(id) {
+      currentFolderId = id;
+      currentFcIndex = 0;
+      fcFlipped = false;
+      renderFlashcards();
+    }
+
+    function updateFlashcardUI() {
+      const folder = getCurrentFolder();
+      const side = document.getElementById('fcSide');
+      const content = document.getElementById('fcContent');
+      const counter = document.getElementById('fcCounter');
+
+      if (!folder || !folder.cards || folder.cards.length === 0) {
+        side.textContent = 'EMPTY FOLDER';
+        content.textContent = 'No flashcards in this deck yet. Tap "+ Add Card" below!';
+        content.style.color = 'var(--text-muted)';
+        counter.textContent = '0/0';
+        return;
+      }
+
+      if (currentFcIndex >= folder.cards.length) {
+        currentFcIndex = 0;
+      }
+
+      const item = folder.cards[currentFcIndex];
+      if (fcFlipped) {
+        side.textContent = 'ANSWER';
+        content.textContent = item.a;
+        content.style.color = '#0D9488';
+      } else {
+        side.textContent = 'QUESTION';
+        content.textContent = item.q;
+        content.style.color = 'var(--text-main)';
+      }
+      counter.textContent = `${currentFcIndex + 1}/${folder.cards.length}`;
+    }
+
+    function flipFlashcard() {
+      const folder = getCurrentFolder();
+      if (!folder || !folder.cards || folder.cards.length === 0) return;
+      fcFlipped = !fcFlipped;
+      updateFlashcardUI();
+    }
+
+    function nextFlashcard() {
+      const folder = getCurrentFolder();
+      if (!folder || !folder.cards || folder.cards.length === 0) return;
+      fcFlipped = false;
+      currentFcIndex = (currentFcIndex + 1) % folder.cards.length;
+      updateFlashcardUI();
+    }
+
+    function prevFlashcard() {
+      const folder = getCurrentFolder();
+      if (!folder || !folder.cards || folder.cards.length === 0) return;
+      fcFlipped = false;
+      currentFcIndex = (currentFcIndex - 1 + folder.cards.length) % folder.cards.length;
+      updateFlashcardUI();
+    }
+
+    function saveFlashcards() {
+      localStorage.setItem(STORAGE_PREFIX + 'fc_folders', JSON.stringify(flashcardFolders));
+    }
+
+    /* Modal: Add or Edit a Flashcard */
+    function openCardEditorModal(cardId = null) {
+      const folder = getCurrentFolder();
+      if (!folder) {
+        alert("Please create or select a folder first.");
+        return;
+      }
+
+      let qVal = '';
+      let aVal = '';
+      const isEditing = cardId !== null;
+
+      if (isEditing) {
+        const card = folder.cards.find(c => c.id === cardId);
+        if (card) {
+          qVal = card.q;
+          aVal = card.a;
+        }
+      }
+
+      const modal = document.getElementById('modalOverlay');
+      document.getElementById('modalTitle').textContent = isEditing ? 'Edit Flashcard' : `Add Card to "${folder.name}"`;
+      document.getElementById('modalBody').innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Question / Prompt</label>
+            <textarea id="cardQuestionInput" class="clean-input" style="height:65px; resize:none;" placeholder="Enter question or formula...">${escapeHtml(qVal)}</textarea>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Answer / Key Takeaway</label>
+            <textarea id="cardAnswerInput" class="clean-input" style="height:80px; resize:none;" placeholder="Enter detailed answer or solution...">${escapeHtml(aVal)}</textarea>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <button class="btn-outline" style="flex:1; justify-content:center;" onclick="closeModal()">Cancel</button>
+            <button class="clean-btn" style="flex:1; padding:12px;" onclick="saveCardData('${folder.id}', ${cardId})">${isEditing ? 'Update Card' : 'Add Card'}</button>
+          </div>
+        </div>
+      `;
+      modal.classList.add('open');
+      lucide.createIcons();
+    }
+
+    function saveCardData(folderId, cardId) {
+      const q = document.getElementById('cardQuestionInput').value.trim();
+      const a = document.getElementById('cardAnswerInput').value.trim();
+      if (!q || !a) {
+        alert("Please fill in both question and answer.");
+        return;
+      }
+
+      const folder = flashcardFolders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      if (cardId) {
+        folder.cards = folder.cards.map(c => c.id === cardId ? { ...c, q, a } : c);
+      } else {
+        folder.cards.push({ id: Date.now(), q, a });
+        currentFcIndex = folder.cards.length - 1;
+      }
+
+      fcFlipped = false;
+      saveFlashcards();
+      renderFlashcards();
+      closeModal();
+    }
+
+    /* Modal: Manage Deck Cards (List, Edit, Delete within current folder) */
+    function openManageDeckModal() {
+      const folder = getCurrentFolder();
+      if (!folder) return;
+
+      const modal = document.getElementById('modalOverlay');
+      document.getElementById('modalTitle').textContent = `Manage "${folder.name}" (${folder.cards.length})`;
+
+      let cardsHtml = '';
+      if (folder.cards.length === 0) {
+        cardsHtml = '<div class="empty-state">No cards in this deck yet.</div>';
+      } else {
+        cardsHtml = folder.cards.map((c, i) => `
+          <div class="fc-manage-item">
+            <div style="flex:1; min-width:0;">
+              <strong style="display:block; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${i + 1}: ${escapeHtml(c.q)}</strong>
+              <span style="font-size:0.75rem; color:var(--text-muted); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.a)}</span>
+            </div>
+            <div style="display:flex; gap:4px;">
+              <button class="delete-btn" onclick="openCardEditorModal(${c.id})" title="Edit card"><i data-lucide="edit-2" style="width:14px;height:14px;"></i></button>
+              <button class="delete-btn" onclick="deleteCard(${c.id})" title="Delete card"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modalBody').innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:0.82rem; color:var(--text-muted);">Cards in this folder:</span>
+          <button class="clean-btn" style="padding:6px 12px; font-size:0.78rem;" onclick="openCardEditorModal(null)">+ Add New</button>
+        </div>
+        <div class="fc-manage-list">${cardsHtml}</div>
+        <button class="btn-outline" style="width:100%; margin-top:16px; justify-content:center; padding:10px;" onclick="closeModal()">Done</button>
+      `;
+      modal.classList.add('open');
+      lucide.createIcons();
+    }
+
+    function deleteCard(cardId) {
+      const folder = getCurrentFolder();
+      if (!folder) return;
+      folder.cards = folder.cards.filter(c => c.id !== cardId);
+      saveFlashcards();
+      renderFlashcards();
+      openManageDeckModal(); // re-render list
+    }
+
+    /* Modal: Manage Folders (Create, Rename, Delete Folders) */
+    function openFolderManager() {
+      const modal = document.getElementById('modalOverlay');
+      document.getElementById('modalTitle').textContent = 'Flashcard Folders & Subjects';
+
+      let listHtml = flashcardFolders.map(f => `
+        <div class="fc-manage-item">
+          <div>
+            <strong>${escapeHtml(f.name)}</strong>
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-left:6px;">(${f.cards.length} cards)</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="delete-btn" onclick="renameFolder('${f.id}')" title="Rename folder"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
+            <button class="delete-btn" onclick="deleteFolder('${f.id}')" title="Delete folder"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('modalBody').innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="input-row" style="margin-bottom:0;">
+            <input type="text" id="newFolderNameInput" class="clean-input" placeholder="New folder name (e.g. Biology 101)..." />
+            <button class="clean-btn" onclick="createFolder()">Create</button>
+          </div>
+          <div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; margin-top:6px;">Existing Folders</div>
+          <div class="fc-manage-list" style="margin-top:0;">${listHtml}</div>
+          <button class="btn-outline" style="width:100%; justify-content:center; padding:10px; margin-top:10px;" onclick="closeModal()">Done</button>
+        </div>
+      `;
+      modal.classList.add('open');
+      lucide.createIcons();
+    }
+
+    function createFolder() {
+      const input = document.getElementById('newFolderNameInput');
+      const name = input.value.trim();
+      if (!name) return;
+
+      const newId = 'f_' + Date.now();
+      flashcardFolders.push({ id: newId, name: name, cards: [] });
+      currentFolderId = newId;
+      input.value = '';
+      saveFlashcards();
+      renderFlashcards();
+      openFolderManager();
+    }
+
+    function renameFolder(id) {
+      const folder = flashcardFolders.find(f => f.id === id);
+      if (!folder) return;
+      const newName = prompt("Enter new folder name:", folder.name);
+      if (newName && newName.trim()) {
+        folder.name = newName.trim();
+        saveFlashcards();
+        renderFlashcards();
+        openFolderManager();
+      }
+    }
+
+    function deleteFolder(id) {
+      if (flashcardFolders.length <= 1) {
+        alert("You must keep at least one folder.");
+        return;
+      }
+      if (confirm("Delete this folder and all of its flashcards?")) {
+        flashcardFolders = flashcardFolders.filter(f => f.id !== id);
+        if (currentFolderId === id) {
+          currentFolderId = flashcardFolders[0].id;
+        }
+        currentFcIndex = 0;
+        fcFlipped = false;
+        saveFlashcards();
+        renderFlashcards();
+        openFolderManager();
+      }
+    }
+
+    /* ==========================================================================
+       STUDY METHOD POPUPS
+       ========================================================================== */
+    function openStudyMethod(type) {
+      const modal = document.getElementById('modalOverlay');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+
+      if (type === 'pomodoro') {
+        title.textContent = 'The 50/10 Focus Protocol';
+        body.innerHTML = `
+          <p><strong>How to execute:</strong></p>
+          <ul style="margin: 8px 0 12px 18px;">
+            <li>Study without interruption or device checking for <strong>50 minutes</strong>.</li>
+            <li>Rest completely away from screens for <strong>10 minutes</strong>.</li>
+            <li>Best suited for complex subjects requiring deep immersion like mathematics, programming, or long-form essays.</li>
+          </ul>
+          <button class="clean-btn" style="width:100%; margin-top:14px; padding:11px;" onclick="closeModal()">Understood</button>
+        `;
+      } else if (type === 'blurting') {
+        title.textContent = 'The Blurting Method';
+        body.innerHTML = `
+          <p><strong>Active Retrieval Strategy:</strong></p>
+          <ul style="margin: 8px 0 12px 18px;">
+            <li>1. Read a subsection of your notes for 10 minutes.</li>
+            <li>2. Close your book and "blurt" out everything you remember into the <em>Idea Dump</em> tab.</li>
+            <li>3. Reopen your material and highlight what you missed in red.</li>
+          </ul>
+          <button class="clean-btn" style="width:100%; margin-top:14px; padding:11px;" onclick="closeModal()">Understood</button>
+        `;
+      } else if (type === 'interleaving') {
+        title.textContent = 'Interleaving Practice';
+        body.innerHTML = `
+          <p><strong>Cross-Disciplinary Learning:</strong></p>
+          <ul style="margin: 8px 0 12px 18px;">
+            <li>Instead of spending 4 hours on a single subject, split your study blocks into two distinct topics.</li>
+            <li>This forces the brain to continually categorize and retrieve distinct patterns, drastically boosting exam retention.</li>
+          </ul>
+          <button class="clean-btn" style="width:100%; margin-top:14px; padding:11px;" onclick="closeModal()">Understood</button>
+        `;
+      }
+      modal.classList.add('open');
+      lucide.createIcons();
+    }
+
+    function triggerCleanData() {
+      if (confirm("Reset all saved tasks, goals, notes, flashcards, and session counts?")) {
+        localStorage.clear();
+        tasks = [];
+        goals = [];
+        notes = [];
+        flashcardFolders = [];
+        timerState.completedSessions = 0;
+        location.reload();
+      }
+    }
+
+    function closeModal(e) {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    /* ==========================================================================
+       UTILITIES & RE-RENDER
+       ========================================================================== */
+    function renderAll() {
+      renderGoals();
+      renderTodos();
+      renderNotes();
+      renderFlashcards();
+      updateStreakDisplay();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.toString().replace(/[&<>"']/g, m => map[m]);
+    }
+  </script>
+</body>
+
+</html>
